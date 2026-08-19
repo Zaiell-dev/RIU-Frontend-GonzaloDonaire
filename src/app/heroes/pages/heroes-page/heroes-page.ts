@@ -16,6 +16,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDelete } from '../../components/confirm-delete/confirm-delete';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-heroes-page',
@@ -25,6 +26,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatInputModule,
     MatPaginatorModule,
     MatIconModule,
+    MatCardModule,
   ],
   templateUrl: './heroes-page.html',
   styleUrl: './heroes-page.css',

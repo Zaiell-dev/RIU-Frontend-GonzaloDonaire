@@ -1,8 +1,34 @@
+.heroes-card {
+  width: 100%;
+  border-color: var(--mat-sys-outline-variant);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.heroes-card-header {
+  padding: 24px 24px 0;
+}
+
+.heroes-card-content {
+  padding: 24px;
+}
+
 .search-field {
   width: 100%;
   margin-bottom: 20px;
 }
+
 .table-responsive-container {
   overflow-x: auto;
   width: 100%;
+}
+
+@media (max-width: 600px) {
+  .heroes-card-header {
+    padding: 16px 16px 0;
+  }
+
+  .heroes-card-content {
+    padding: 16px;
+  }
 }
