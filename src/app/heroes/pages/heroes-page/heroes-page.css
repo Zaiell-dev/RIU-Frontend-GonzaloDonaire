@@ -1,7 +1,9 @@
 .heroes-card {
   width: 100%;
+  background-color: var(--mat-sys-surface-container-lowest);
   border-color: var(--mat-sys-outline-variant);
   border-radius: 16px;
+  box-shadow: var(--mat-sys-level1);
   overflow: hidden;
 }
 
@@ -39,6 +41,11 @@
 .table-responsive-container {
   overflow-x: auto;
   width: 100%;
+}
+
+.heroes-card table,
+.heroes-card mat-paginator {
+  background-color: transparent;
 }
 
 .empty-state {
