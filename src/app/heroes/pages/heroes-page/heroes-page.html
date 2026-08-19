@@ -5,10 +5,24 @@
   </mat-card-header>
 
   <mat-card-content class="heroes-card-content">
-    <mat-form-field class="search-field" appearance="outline">
-      <mat-label>Buscar héroe por nombre</mat-label>
-      <input matInput #searchTxt (input)="heroesService.onChangeSearchString(searchTxt.value)">
-    </mat-form-field>
+    <div class="heroes-actions-bar">
+      <mat-form-field class="search-field" appearance="outline">
+        <mat-label>Buscar héroe por nombre</mat-label>
+        <mat-icon matPrefix class="search-icon">search</mat-icon>
+        <input matInput #searchTxt autocomplete="off"
+          (input)="heroesService.onChangeSearchString(searchTxt.value)">
+        @if (heroesService.searchString()) {
+        <button matIconButton matSuffix type="button" aria-label="Limpiar búsqueda" (click)="clearSearch(searchTxt)">
+          <mat-icon>close</mat-icon>
+        </button>
+        }
+      </mat-form-field>
+
+      <button matButton="filled" type="button" class="create-hero-button" (click)="onCreateButton()">
+        <mat-icon>add</mat-icon>
+        Crear un héroe
+      </button>
+    </div>
 
     <div class="table-responsive-container">
       <table mat-table [dataSource]="dataSource">

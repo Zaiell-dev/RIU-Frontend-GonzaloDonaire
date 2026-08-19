@@ -61,6 +61,11 @@ describe('HeroesPage', () => {
     );
   });
 
+  it('should navigate to form on create', () => {
+    component.onCreateButton();
+    expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/form');
+  });
+
   it('should open dialog and call deleteHero if confirmed', () => {
     let onConfirmAsyncFn: Function | undefined;
     const afterClosed$ = of(true);

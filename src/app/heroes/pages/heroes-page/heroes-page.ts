@@ -64,6 +64,15 @@ export class HeroesPage {
     window.removeEventListener('resize', this.resizeHandler);
   }
 
+  clearSearch(searchInput: HTMLInputElement): void {
+    searchInput.value = '';
+    this.heroesService.onChangeSearchString('');
+  }
+
+  onCreateButton(): void {
+    this.router.navigateByUrl('/form');
+  }
+
   onEditButton(hero: Hero) {
     this.router.navigateByUrl(`/form?id=${hero.id}`);
   }
