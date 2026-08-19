@@ -37,6 +37,7 @@
       Guardar
       }
     </button>
-    <button [disabled]="loadingService.loadingSave()" matButton="elevated" (click)="onCancel()">Cancelar</button>
+    <button type="button" [disabled]="loadingService.loadingSave()" matButton="elevated"
+      (click)="onCancel()">Cancelar</button>
   </section>
 </form>
