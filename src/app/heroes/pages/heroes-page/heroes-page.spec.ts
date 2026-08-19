@@ -29,6 +29,7 @@ describe('HeroesPage', () => {
       loadingDelete: () => false,
       loadingCreateOrEdit: () => false,
       heroesFiltered: () => [],
+      searchString: () => '',
       onChangeSearchString: jasmine.createSpy('onChangeSearchString'),
     } as any;
     mockRouter = jasmine.createSpyObj('Router', ['navigateByUrl']);
@@ -52,6 +53,12 @@ describe('HeroesPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should show an empty state when there are no heroes', () => {
+    expect(fixture.nativeElement.textContent).toContain(
+      'Todavía no hay superhéroes registrados'
+    );
   });
 
   it('should navigate to form on edit', () => {

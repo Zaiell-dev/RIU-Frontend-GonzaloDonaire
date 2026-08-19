@@ -24,6 +24,25 @@
       </button>
     </div>
 
+    @if (heroesService.heroesFiltered().length === 0) {
+    <section class="empty-state" aria-live="polite">
+      @if (heroesService.searchString()) {
+      <mat-icon class="empty-state-icon">search_off</mat-icon>
+      <h3>No encontramos superhéroes</h3>
+      <p>Prueba con otro nombre o limpia la búsqueda.</p>
+      <button matButton="outlined" type="button" (click)="clearSearch(searchTxt)">
+        Limpiar búsqueda
+      </button>
+      } @else {
+      <mat-icon class="empty-state-icon">person_add</mat-icon>
+      <h3>Todavía no hay superhéroes registrados</h3>
+      <p>Crea el primero para comenzar a completar el listado.</p>
+      <button matButton="filled" type="button" (click)="onCreateButton()">
+        Crear un héroe
+      </button>
+      }
+    </section>
+    } @else {
     <div class="table-responsive-container">
       <table mat-table [dataSource]="dataSource">
 
@@ -66,5 +85,6 @@
       <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Paginación de superhéroes">
       </mat-paginator>
     </div>
+    }
   </mat-card-content>
 </mat-card>
