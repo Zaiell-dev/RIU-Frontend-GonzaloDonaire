@@ -1,6 +1,9 @@
 .main-layout {
-  padding: 0px 40px;
-  margin-top: 12px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 12px auto 0;
+  padding: 0 clamp(16px, 4vw, 40px);
+  box-sizing: border-box;
 }
 .loading-section {
   display: flex;

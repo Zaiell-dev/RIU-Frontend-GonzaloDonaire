@@ -1,5 +1,5 @@
 .navbar {
-  background-color: white;
+  background-color: var(--mat-sys-surface);
   border-bottom: 1px solid #e5e7eb;
 }
 
