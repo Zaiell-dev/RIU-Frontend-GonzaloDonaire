@@ -1,6 +1,6 @@
 .navbar {
   background-color: var(--mat-sys-surface);
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
 }
 
 .navbar-container {
@@ -16,6 +16,7 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  color: var(--mat-sys-primary);
   text-decoration: none;
 }
 
@@ -27,7 +28,7 @@
   font-size: 1.5rem;
   font-weight: 600;
   white-space: nowrap;
-  color: #111827;
+  color: var(--mat-sys-on-surface);
 }
 
 .navbar-menu {
@@ -44,17 +45,25 @@
 
 .nav-link {
   text-decoration: none;
-  color: #111827;
+  color: var(--mat-sys-on-surface);
   padding: 0.5rem 0.75rem;
-  border-radius: 0.25rem;
-  transition: color 0.3s, background-color 0.3s;
+  border-radius: 8px;
+  transition: color 200ms ease, background-color 200ms ease;
 }
 
 .nav-link:hover {
-  background-color: #f3f4f6;
-  color: #1d4ed8;
+  background-color: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-primary);
 }
 
 .nav-link.active {
-  color: #1d4ed8;
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  font-weight: 500;
+}
+
+.navbar-brand:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--mat-sys-primary);
+  outline-offset: 3px;
 }
