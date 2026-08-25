@@ -1,16 +1,22 @@
-import { Directive, ElementRef, inject, Renderer2 } from '@angular/core';
+import { Directive, inject } from '@angular/core';
+import { NgControl } from '@angular/forms';
 
 @Directive({
   selector: '[appSeeInUppercase]',
+  host: {
+    '(input)': 'onInput($event)',
+  },
 })
 export class SeeInUppercase {
-  private el = inject(ElementRef);
-  private renderer = inject(Renderer2);
-  ngOnInit(): void {
-    this.renderer.setStyle(
-      this.el.nativeElement,
-      'text-transform',
-      'uppercase'
-    );
+  private readonly ngControl = inject(NgControl, { self: true });
+
+  onInput(event: InputEvent): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) return;
+
+    const uppercaseValue = target.value.toUpperCase();
+    if (target.value !== uppercaseValue) {
+      this.ngControl.control?.setValue(uppercaseValue, { emitEvent: false });
+    }
   }
 }

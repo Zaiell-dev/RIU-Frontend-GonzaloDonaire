@@ -2,13 +2,16 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { SeeInUppercase } from './see-in-uppercase';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   standalone: true,
-  template: `<span appSeeInUppercase>texto de prueba</span>`,
-  imports: [SeeInUppercase],
+  template: `<input appSeeInUppercase [formControl]="nameControl" />`,
+  imports: [SeeInUppercase, ReactiveFormsModule],
 })
-class TestHostComponent {}
+class TestHostComponent {
+  nameControl = new FormControl('');
+}
 
 describe('SeeInUppercase Directive', () => {
   let fixture: ComponentFixture<TestHostComponent>;
@@ -26,10 +29,16 @@ describe('SeeInUppercase Directive', () => {
     expect(directive).not.toBeNull();
   });
 
-  it('should set text-transform to uppercase', () => {
-    const span: HTMLElement = fixture.debugElement.query(
-      By.css('span')
+  it('should convert the form control value to uppercase on input', () => {
+    const input: HTMLInputElement = fixture.debugElement.query(
+      By.css('input'),
     ).nativeElement;
-    expect(span.style.textTransform).toBe('uppercase');
+
+    input.value = 'texto de prueba';
+    input.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.nameControl.value).toBe('TEXTO DE PRUEBA');
+    expect(input.value).toBe('TEXTO DE PRUEBA');
   });
 });
