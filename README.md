@@ -5,13 +5,11 @@ Este proyecto es una aplicación SPA desarrollada en **Angular 20** como parte d
 ### Requisitos
 
 - **Servicios:**
-
   - Registro, consulta, búsqueda, edición y eliminación de súper héroes completamente gestionados desde servicios Angular.
-  - Los datos se mantienen en memoria (no requiere backend).
+  - Los datos se almacenan en localStorage y las operaciones simulan la latencia de una API, sin requerir un backend.
   - Incluye **tests unitarios** para garantizar la lógica del servicio.
 
 - **Estructura modular de componentes:**
-
   - La aplicación está compuesta por varios componentes reutilizables y especializados:
     - Listado paginado de héroes con acciones de añadir, editar y borrar.
     - Filtros y formularios independientes para alta y edición, con validaciones y reutilización de lógica.
@@ -23,7 +21,7 @@ Este proyecto es una aplicación SPA desarrollada en **Angular 20** como parte d
 - **Extras implementados:**
   - Uso de **Angular Material** para una interfaz moderna y accesible.
   - Rutas y navegación entre páginas (SPA completa).
-  - Interceptor para mostrar un elemento "loading" durante operaciones asíncronas.
+  - Indicadores de carga gestionados mediante LoadingService y Signals durante las operaciones asíncronas simuladas.
   - Directiva personalizada para mostrar el nombre del héroe en mayúsculas en formularios.
   - Comunicación entre componentes basada en eventos y buenas prácticas de Angular.
 
