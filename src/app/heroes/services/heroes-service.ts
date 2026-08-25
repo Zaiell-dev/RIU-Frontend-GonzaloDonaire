@@ -23,7 +23,7 @@ export class HeroesService {
     if (!searchString) return this.heroes();
 
     return this.heroes().filter((hero) =>
-      hero.name.toLowerCase().includes(searchString)
+      hero.name.toLowerCase().includes(searchString),
     );
   });
 
@@ -86,12 +86,16 @@ export class HeroesService {
     return new Promise((resolve) => {
       setTimeout(() => {
         const heroes = this.heroes();
-        const index = heroes.findIndex((h) => h.id === hero.id);
-        if (index !== -1) {
-          heroes[index] = hero;
-          localStorage.setItem(this.HEROES_KEY, JSON.stringify(heroes));
-          this.heroes.set([...heroes]);
+
+        const heroExists = heroes.some((heroItem) => heroItem.id === hero.id);
+        if (heroExists) {
+          const updatedHeroes = heroes.map((heroItem) =>
+            heroItem.id === hero.id ? hero : heroItem,
+          );
+          localStorage.setItem(this.HEROES_KEY, JSON.stringify(updatedHeroes));
+          this.heroes.set(updatedHeroes);
         }
+
         this.router.navigateByUrl('/');
         this.loadingService.updateLoadingSave(false);
         this._snackBar.open('Heroe actualizado correctamente!', 'Cerrar', {

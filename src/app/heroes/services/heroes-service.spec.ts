@@ -78,11 +78,26 @@ describe('HeroesService', () => {
     }, 1100);
   });
 
-  it('should update an existing hero', (done) => {
-    service.heroes.set([{ id: 1, name: 'A', power: 'X', universe: 'U' }]);
-    service.updateHero({ id: 1, name: 'B', power: 'Y', universe: 'V' });
+  it('should update an existing hero without mutating the original state', (done) => {
+    const originalHeroes = [
+      { id: 1, name: 'A', power: 'X', universe: 'U' },
+    ];
+    const updatedHero = { id: 1, name: 'B', power: 'Y', universe: 'V' };
+
+    service.heroes.set(originalHeroes);
+    service.updateHero(updatedHero);
+
     setTimeout(() => {
-      expect(service.heroes()[0].name).toBe('B');
+      const currentHeroes = service.heroes();
+
+      expect(currentHeroes).not.toBe(originalHeroes);
+      expect(originalHeroes[0]).toEqual({
+        id: 1,
+        name: 'A',
+        power: 'X',
+        universe: 'U',
+      });
+      expect(currentHeroes[0]).toEqual(updatedHero);
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/');
       done();
     }, 1100);
