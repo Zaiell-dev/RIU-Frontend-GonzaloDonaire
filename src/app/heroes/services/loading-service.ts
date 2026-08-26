@@ -4,20 +4,20 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root',
 })
 export class LoadingService {
-  private _loadingList = signal<boolean>(false);
-  private _loadingSave = signal<boolean>(false);
-  private _loadingDelete = signal<boolean>(false);
-  loadingList = this._loadingList.asReadonly();
-  loadingSave = this._loadingSave.asReadonly();
-  loadingDelete = this._loadingDelete.asReadonly();
+  private readonly loadingListState = signal<boolean>(false);
+  private readonly loadingSaveState = signal<boolean>(false);
+  private readonly loadingDeleteState = signal<boolean>(false);
+  readonly loadingList = this.loadingListState.asReadonly();
+  readonly loadingSave = this.loadingSaveState.asReadonly();
+  readonly loadingDelete = this.loadingDeleteState.asReadonly();
 
   updateLoadingList(isLoading: boolean): void {
-    this._loadingList.set(isLoading);
+    this.loadingListState.set(isLoading);
   }
   updateLoadingSave(isLoading: boolean): void {
-    this._loadingSave.set(isLoading);
+    this.loadingSaveState.set(isLoading);
   }
   updateLoadingDelete(isLoading: boolean): void {
-    this._loadingDelete.set(isLoading);
+    this.loadingDeleteState.set(isLoading);
   }
 }
