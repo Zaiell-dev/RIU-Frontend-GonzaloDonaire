@@ -17,6 +17,8 @@ import { ConfirmDelete } from '../../components/confirm-delete/confirm-delete';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-heroes-page',
@@ -33,6 +35,7 @@ import { MatCardModule } from '@angular/material/card';
 })
 export class HeroesPage {
   readonly dialog = inject(MatDialog);
+  private readonly searchTerms = new Subject<string>();
   heroesService = inject(HeroesService);
   router = inject(Router);
 
@@ -50,6 +53,12 @@ export class HeroesPage {
   };
 
   constructor() {
+    this.searchTerms
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((searchTerm) => {
+        this.heroesService.onChangeSearchString(searchTerm);
+      });
+
     effect(() => {
       this.dataSource.data = this.heroesService.heroesFiltered();
     });
@@ -64,9 +73,13 @@ export class HeroesPage {
     window.removeEventListener('resize', this.resizeHandler);
   }
 
+  onSearchChange(searchTerm: string): void {
+    this.searchTerms.next(searchTerm);
+  }
+
   clearSearch(searchInput: HTMLInputElement): void {
     searchInput.value = '';
-    this.heroesService.onChangeSearchString('');
+    this.searchTerms.next('');
   }
 
   onCreateButton(): void {

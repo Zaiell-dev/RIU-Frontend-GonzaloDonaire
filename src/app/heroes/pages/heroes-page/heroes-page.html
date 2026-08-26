@@ -9,8 +9,7 @@
       <mat-form-field class="search-field" appearance="outline">
         <mat-label>Buscar héroe por nombre</mat-label>
         <mat-icon matPrefix class="search-icon">search</mat-icon>
-        <input matInput #searchTxt autocomplete="off"
-          (input)="heroesService.onChangeSearchString(searchTxt.value)">
+        <input matInput #searchTxt autocomplete="off" (input)="onSearchChange(searchTxt.value)">
         @if (heroesService.searchString()) {
         <button matIconButton matSuffix type="button" aria-label="Limpiar búsqueda" (click)="clearSearch(searchTxt)">
           <mat-icon>close</mat-icon>

@@ -1,4 +1,9 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { HeroesPage } from './heroes-page';
 import { MatDialog } from '@angular/material/dialog';
 import { HeroesService } from '../../services/heroes-service';
@@ -53,6 +58,54 @@ describe('HeroesPage', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should debounce search input and ignore consecutive duplicates', fakeAsync(() => {
+    const searchInput = fixture.nativeElement.querySelector(
+      'input',
+    ) as HTMLInputElement;
+
+    searchInput.value = 'Bat';
+    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+    tick(200);
+
+    searchInput.value = 'Batman';
+    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+    tick(299);
+
+    expect(mockHeroesService.onChangeSearchString).not.toHaveBeenCalled();
+
+    tick(1);
+
+    expect(
+      mockHeroesService.onChangeSearchString,
+    ).toHaveBeenCalledOnceWith('Batman');
+
+    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+    tick(300);
+
+    expect(mockHeroesService.onChangeSearchString).toHaveBeenCalledTimes(1);
+  }));
+
+  it('should clear the input and cancel a pending search', fakeAsync(() => {
+    const searchInput = fixture.nativeElement.querySelector(
+      'input',
+    ) as HTMLInputElement;
+    searchInput.value = 'Batman';
+    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+    tick(100);
+
+    component.clearSearch(searchInput);
+
+    expect(searchInput.value).toBe('');
+    tick(299);
+    expect(mockHeroesService.onChangeSearchString).not.toHaveBeenCalled();
+
+    tick(1);
+
+    expect(mockHeroesService.onChangeSearchString).toHaveBeenCalledOnceWith(
+      '',
+    );
+  }));
 
   it('should show an empty state when there are no heroes', () => {
     expect(fixture.nativeElement.textContent).toContain(
