@@ -1,6 +1,6 @@
-## Challenge Técnico: Mantenimiento de Súper Héroes (Angular 20)
+## Challenge Técnico: Mantenimiento de Súper Héroes (Angular 21)
 
-Este proyecto es una aplicación SPA desarrollada en **Angular 20** como parte de un challenge técnico. La aplicación permite gestionar (CRUD) un listado de súper héroes, cumpliendo con los siguientes requisitos:
+Este proyecto es una aplicación SPA desarrollada en **Angular 21** como parte de un challenge técnico. La aplicación permite gestionar (CRUD) un listado de súper héroes, cumpliendo con los siguientes requisitos:
 
 ### Requisitos
 
