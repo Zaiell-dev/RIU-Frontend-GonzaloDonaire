@@ -1,34 +1,42 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeroesFormPage } from './heroes-form-page';
 import { HeroesService } from '../../services/heroes-service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { Hero } from '../../interfaces/hero';
 
 describe('HeroesFormPage', () => {
+  type HeroesServiceMethods = Pick<
+    HeroesService,
+    'getHeroById' | 'createHero' | 'updateHero'
+  >;
+  type HeroesServiceMock = jasmine.SpyObj<HeroesServiceMethods> & {
+    heroes: WritableSignal<Hero[]>;
+  };
+
   let component: HeroesFormPage;
   let fixture: ComponentFixture<HeroesFormPage>;
-  let mockHeroesService: any;
+  let mockHeroesService: HeroesServiceMock;
   let mockRouter: jasmine.SpyObj<Router>;
   let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
-  let mockActivatedRoute: any;
+  let mockActivatedRoute: Pick<ActivatedRoute, 'queryParamMap'>;
 
   beforeEach(async () => {
-    mockHeroesService = {
-      heroes: signal<Hero[]>([]),
-      getHeroById: jasmine.createSpy('getHeroById'),
-      createHero: jasmine
-        .createSpy('createHero')
-        .and.returnValue(of(void 0)),
-      updateHero: jasmine
-        .createSpy('updateHero')
-        .and.returnValue(of(void 0)),
-    } as any;
+    mockHeroesService = Object.assign(
+      jasmine.createSpyObj<HeroesServiceMethods>('HeroesService', [
+        'getHeroById',
+        'createHero',
+        'updateHero',
+      ]),
+      { heroes: signal<Hero[]>([]) },
+    );
+    mockHeroesService.createHero.and.returnValue(of(void 0));
+    mockHeroesService.updateHero.and.returnValue(of(void 0));
     mockRouter = jasmine.createSpyObj('Router', ['navigateByUrl']);
     mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
-    mockActivatedRoute = { queryParamMap: of(new Map()) };
+    mockActivatedRoute = { queryParamMap: of(convertToParamMap({})) };
 
     await TestBed.configureTestingModule({
       imports: [HeroesFormPage],

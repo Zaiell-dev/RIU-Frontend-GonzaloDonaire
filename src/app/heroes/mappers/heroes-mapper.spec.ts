@@ -2,11 +2,11 @@ import { mapHeroes } from './heroes-mapper';
 
 describe('mapHeroes', () => {
   it('should return an empty array if input is undefined', () => {
-    expect(mapHeroes(undefined as any)).toEqual([]);
+    expect(mapHeroes(undefined)).toEqual([]);
   });
 
   it('should return an empty array if input is not an array', () => {
-    expect(mapHeroes({} as any)).toEqual([]);
+    expect(mapHeroes({})).toEqual([]);
   });
 
   it('should map valid heroes and filter out those with id <= 0', () => {

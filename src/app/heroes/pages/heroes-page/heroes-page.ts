@@ -4,6 +4,7 @@ import {
   computed,
   effect,
   inject,
+  OnDestroy,
   signal,
   viewChild,
 } from '@angular/core';
@@ -35,7 +36,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrl: './heroes-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HeroesPage {
+export class HeroesPage implements OnDestroy {
   readonly dialog = inject(MatDialog);
   private readonly searchTerms = new Subject<string>();
   heroesService = inject(HeroesService);
