@@ -11,8 +11,3 @@
   align-items: center;
   min-height: calc(100vh - 100px);
 }
-.add-hero-button {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-}
