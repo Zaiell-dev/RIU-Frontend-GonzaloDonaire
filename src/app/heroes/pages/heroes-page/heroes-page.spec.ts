@@ -4,20 +4,25 @@ import {
   TestBed,
   tick,
 } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { HeroesPage } from './heroes-page';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { HeroesService } from '../../services/heroes-service';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { Hero } from '../../interfaces/hero';
 import { ConfirmDelete } from '../../components/confirm-delete/confirm-delete';
 
 describe('HeroesPage', () => {
+  type HeroesServiceMock = jasmine.SpyObj<
+    Pick<HeroesService, 'deleteHero' | 'onChangeSearchString'>
+  > & Pick<HeroesService, 'heroesFiltered' | 'searchString'>;
+
   let component: HeroesPage;
   let fixture: ComponentFixture<HeroesPage>;
 
   let mockDialog: jasmine.SpyObj<MatDialog>;
-  let mockHeroesService: jasmine.SpyObj<HeroesService>;
+  let mockHeroesService: HeroesServiceMock;
   let mockRouter: jasmine.SpyObj<Router>;
   const hero: Hero = {
     id: 1,
@@ -32,10 +37,10 @@ describe('HeroesPage', () => {
       deleteHero: jasmine
         .createSpy('deleteHero')
         .and.returnValue(of(void 0)),
-      heroesFiltered: () => [],
-      searchString: () => '',
+      heroesFiltered: signal<Hero[]>([]).asReadonly(),
+      searchString: signal(''),
       onChangeSearchString: jasmine.createSpy('onChangeSearchString'),
-    } as any;
+    };
     mockRouter = jasmine.createSpyObj('Router', ['navigateByUrl']);
     await TestBed.configureTestingModule({
       imports: [HeroesPage],
@@ -127,21 +132,20 @@ describe('HeroesPage', () => {
 
   it('should provide the delete action when opening the dialog', () => {
     const deleteResult$ = of(void 0);
-    let onConfirmAsync: (() => Observable<void>) | undefined;
     mockHeroesService.deleteHero.and.returnValue(deleteResult$);
-    mockDialog.open.and.callFake((_component: any, config: any) => {
-      onConfirmAsync = config.data.onConfirmAsync;
-      return {} as any;
-    });
 
     component.onDeleteButton(hero);
+
+    const dialogConfig = mockDialog.open.calls.mostRecent()
+      .args[1] as MatDialogConfig<ConfirmDelete['data']>;
+    const onConfirmAsync = dialogConfig.data!.onConfirmAsync;
 
     expect(mockDialog.open).toHaveBeenCalledWith(ConfirmDelete, {
       data: { hero, onConfirmAsync: jasmine.any(Function) },
     });
     expect(mockHeroesService.deleteHero).not.toHaveBeenCalled();
 
-    const result$ = onConfirmAsync!();
+    const result$ = onConfirmAsync();
 
     expect(mockHeroesService.deleteHero).toHaveBeenCalledOnceWith(hero.id);
     expect(result$).toBe(deleteResult$);
