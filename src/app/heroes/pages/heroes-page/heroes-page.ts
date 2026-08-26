@@ -16,11 +16,22 @@ import { Router } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDelete } from '../../components/confirm-delete/confirm-delete';
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import {
+  MatPaginator,
+  MatPaginatorIntl,
+  MatPaginatorModule,
+} from '@angular/material/paginator';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+function createPaginatorIntl(): MatPaginatorIntl {
+  const paginatorIntl = new MatPaginatorIntl();
+  paginatorIntl.itemsPerPageLabel = 'Héroes por página';
+  return paginatorIntl;
+}
 
 @Component({
   selector: 'app-heroes-page',
@@ -31,10 +42,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     MatPaginatorModule,
     MatIconModule,
     MatCardModule,
+    MatSelectModule,
   ],
   templateUrl: './heroes-page.html',
   styleUrl: './heroes-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: MatPaginatorIntl,
+      useFactory: createPaginatorIntl,
+    },
+  ],
 })
 export class HeroesPage implements OnDestroy {
   readonly dialog = inject(MatDialog);
@@ -81,6 +99,27 @@ export class HeroesPage implements OnDestroy {
   clearSearch(searchInput: HTMLInputElement): void {
     searchInput.value = '';
     this.searchTerms.next('');
+  }
+
+  pageIndexes(paginator: MatPaginator): number[] {
+    return Array.from(
+      { length: paginator.getNumberOfPages() },
+      (_, index) => index,
+    );
+  }
+
+  goToPage(pageIndex: number): void {
+    const paginator = this.paginator();
+    if (!paginator || pageIndex === paginator.pageIndex) return;
+
+    const previousPageIndex = paginator.pageIndex;
+    paginator.pageIndex = pageIndex;
+    paginator.page.emit({
+      previousPageIndex,
+      pageIndex,
+      pageSize: paginator.pageSize,
+      length: paginator.length,
+    });
   }
 
   onCreateButton(): void {

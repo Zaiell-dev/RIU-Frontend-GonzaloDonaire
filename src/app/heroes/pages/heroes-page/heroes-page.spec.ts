@@ -4,7 +4,7 @@ import {
   TestBed,
   tick,
 } from '@angular/core/testing';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import { HeroesPage } from './heroes-page';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { HeroesService } from '../../services/heroes-service';
@@ -25,6 +25,7 @@ describe('HeroesPage', () => {
   let mockDialog: jasmine.SpyObj<MatDialog>;
   let mockHeroesService: HeroesServiceMock;
   let mockRouter: jasmine.SpyObj<Router>;
+  let heroesFilteredState: WritableSignal<Hero[]>;
   const hero: Hero = {
     id: 1,
     name: 'Test Hero',
@@ -34,9 +35,10 @@ describe('HeroesPage', () => {
 
   beforeEach(async () => {
     mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
+    heroesFilteredState = signal<Hero[]>([]);
     mockHeroesService = {
       deleteHero: jasmine.createSpy('deleteHero').and.returnValue(of(void 0)),
-      heroesFiltered: signal<Hero[]>([]).asReadonly(),
+      heroesFiltered: heroesFilteredState.asReadonly(),
       searchString: signal(''),
       onChangeSearchString: jasmine.createSpy('onChangeSearchString'),
     };
@@ -126,6 +128,37 @@ describe('HeroesPage', () => {
     component.onCreateButton();
     expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/form');
   });
+
+  it('should expose available pages and jump to the selected page', fakeAsync(() => {
+    heroesFilteredState.set(
+      Array.from({ length: 10 }, (_, index) => ({
+        id: index + 1,
+        name: `Hero ${index + 1}`,
+        power: 'Test power',
+        universe: 'Marvel',
+      })),
+    );
+    fixture.detectChanges();
+    tick();
+    fixture.detectChanges();
+
+    const paginator = component.paginator()!;
+    paginator.length = 10;
+    paginator.pageSize = 5;
+    const pageSpy = spyOn(paginator.page, 'emit');
+
+    expect(component.pageIndexes(paginator)).toEqual([0, 1]);
+
+    component.goToPage(1);
+
+    expect(paginator.pageIndex).toBe(1);
+    expect(pageSpy).toHaveBeenCalledOnceWith({
+      previousPageIndex: 0,
+      pageIndex: 1,
+      pageSize: 5,
+      length: 10,
+    });
+  }));
 
   it('should provide the delete action when opening the dialog', () => {
     const deleteResult$ = of(void 0);

@@ -99,12 +99,41 @@
           <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
         </table>
-        <mat-paginator
-          [pageSizeOptions]="[5, 10, 20]"
-          showFirstLastButtons
-          aria-label="Paginación de superhéroes"
-        >
-        </mat-paginator>
+        <section class="pagination-container">
+          @if (paginator(); as currentPaginator) {
+            <div class="page-jump">
+              <span class="page-jump-label">Ir a página:</span>
+              <mat-form-field
+                class="page-selector"
+                appearance="outline"
+                subscriptSizing="dynamic"
+              >
+                <mat-select
+                  aria-label="Ir a página"
+                  [value]="currentPaginator.pageIndex"
+                  (selectionChange)="goToPage($event.value)"
+                >
+                  @for (
+                    pageIndex of pageIndexes(currentPaginator);
+                    track pageIndex
+                  ) {
+                    <mat-option [value]="pageIndex">
+                      {{ pageIndex + 1 }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <span>de {{ currentPaginator.getNumberOfPages() }}</span>
+            </div>
+          }
+          <mat-paginator
+            [pageSize]="5"
+            [pageSizeOptions]="[5, 10, 20]"
+            showFirstLastButtons
+            aria-label="Paginación de superhéroes"
+          >
+          </mat-paginator>
+        </section>
       </div>
     }
   </mat-card-content>
