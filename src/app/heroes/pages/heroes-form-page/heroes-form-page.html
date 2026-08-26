@@ -1,6 +1,6 @@
 <h2>{{ mode() === 'create' ? 'Crear Héroe' : 'Editar Héroe' }}</h2>
 <form class="heroes-form" [formGroup]="form" (ngSubmit)="onSaveHero()">
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>Nombre</mat-label>
     <input matInput formControlName="name" appSeeInUppercase>
     @if (form.get('name')?.hasError('required')) {
@@ -9,15 +9,18 @@
     @if (form.get('name')?.hasError('minlength')) {
     <mat-error>El nombre debe tener al menos 3 caracteres</mat-error>
     }
+    @if (form.get('name')?.hasError('duplicateName')) {
+    <mat-error>Ya existe un héroe con ese nombre</mat-error>
+    }
   </mat-form-field>
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>Poder</mat-label>
     <input matInput formControlName="power">
     @if (form.get('power')?.hasError('required')) {
     <mat-error>El poder es obligatorio</mat-error>
     }
   </mat-form-field>
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" subscriptSizing="dynamic">
     <mat-label>Universo</mat-label>
     <mat-select formControlName="universe">
       <mat-option value="DC">DC</mat-option>

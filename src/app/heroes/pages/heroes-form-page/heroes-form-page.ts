@@ -22,6 +22,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { LoadingService } from '../../services/loading-service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { uniqueHeroNameValidator } from '../../validators/unique-hero-name-validator/unique-hero-name-validator';
 
 @Component({
   selector: 'app-heroes-form-page',
@@ -41,15 +42,19 @@ export class HeroesFormPage {
   private readonly snackBar = inject(MatSnackBar);
 
   mode = signal<'create' | 'edit'>('create');
+  heroesService = inject(HeroesService);
   form: FormGroup = new FormGroup({
     id: new FormControl<number>(0),
     name: new FormControl<string>('', {
-      validators: [Validators.required, Validators.minLength(3)],
+      validators: [
+        Validators.required,
+        Validators.minLength(3),
+        uniqueHeroNameValidator(this.heroesService.heroes),
+      ],
     }),
     power: new FormControl<string>('', [Validators.required]),
     universe: new FormControl<string>('', [Validators.required]),
   });
-  heroesService = inject(HeroesService);
   loadingService = inject(LoadingService);
   activatedRoute = inject(ActivatedRoute);
   router = inject(Router);

@@ -4,6 +4,8 @@ import { HeroesService } from '../../services/heroes-service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { signal } from '@angular/core';
+import { Hero } from '../../interfaces/hero';
 
 describe('HeroesFormPage', () => {
   let component: HeroesFormPage;
@@ -15,6 +17,7 @@ describe('HeroesFormPage', () => {
 
   beforeEach(async () => {
     mockHeroesService = {
+      heroes: signal<Hero[]>([]),
       getHeroById: jasmine.createSpy('getHeroById'),
       createHero: jasmine
         .createSpy('createHero')
@@ -74,8 +77,12 @@ describe('HeroesFormPage', () => {
 
   it('should handle a successful hero creation', () => {
     component.mode.set('create');
-    component.form.setValue({ id: 0, name: 'A', power: 'X', universe: 'U' });
-    spyOnProperty(component.form, 'invalid', 'get').and.returnValue(false);
+    component.form.setValue({
+      id: 0,
+      name: 'Superman',
+      power: 'Flight',
+      universe: 'DC',
+    });
 
     component.onSaveHero();
 
@@ -92,8 +99,12 @@ describe('HeroesFormPage', () => {
 
   it('should handle a successful hero update', () => {
     component.mode.set('edit');
-    component.form.setValue({ id: 1, name: 'A', power: 'X', universe: 'U' });
-    spyOnProperty(component.form, 'invalid', 'get').and.returnValue(false);
+    component.form.setValue({
+      id: 1,
+      name: 'Superman',
+      power: 'Flight',
+      universe: 'DC',
+    });
 
     component.onSaveHero();
 
@@ -109,11 +120,33 @@ describe('HeroesFormPage', () => {
   });
 
   it('should not call createHero or updateHero if form is invalid', () => {
-    spyOnProperty(component.form, 'invalid', 'get').and.returnValue(true);
+    component.form.reset();
     component.mode.set('create');
     component.onSaveHero();
     component.mode.set('edit');
     component.onSaveHero();
+
+    expect(mockHeroesService.createHero).not.toHaveBeenCalled();
+    expect(mockHeroesService.updateHero).not.toHaveBeenCalled();
+  });
+
+  it('should not save a hero when its name belongs to another hero', () => {
+    mockHeroesService.heroes.set([
+      { id: 1, name: 'Superman', power: 'Flight', universe: 'DC' },
+    ]);
+    component.form.setValue({
+      id: 2,
+      name: '  SUPERMAN  ',
+      power: 'Strength',
+      universe: 'DC',
+    });
+
+    component.mode.set('create');
+    component.onSaveHero();
+    component.mode.set('edit');
+    component.onSaveHero();
+
+    expect(component.form.get('name')?.hasError('duplicateName')).toBeTrue();
     expect(mockHeroesService.createHero).not.toHaveBeenCalled();
     expect(mockHeroesService.updateHero).not.toHaveBeenCalled();
   });
