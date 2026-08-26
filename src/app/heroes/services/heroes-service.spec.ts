@@ -1,9 +1,7 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { HeroesService } from './heroes-service';
-import { Router } from '@angular/router';
 import { HEROES } from '../data/heroesdb';
 import { EMPTY } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -24,23 +22,15 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 describe('HeroesService', () => {
   let service: HeroesService;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
   let getHeroesSpy: jasmine.Spy;
 
   beforeEach(() => {
-    routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
-    snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
     getHeroesSpy = spyOn(
       HeroesService.prototype,
       'getHeroes',
     ).and.returnValue(EMPTY);
     TestBed.configureTestingModule({
-      providers: [
-        HeroesService,
-        { provide: Router, useValue: routerSpy },
-        { provide: MatSnackBar, useValue: snackBarSpy },
-      ],
+      providers: [HeroesService],
     });
     service = TestBed.inject(HeroesService);
     localStorage.clear();
@@ -89,7 +79,6 @@ describe('HeroesService', () => {
     tick(1000);
 
     expect(service.heroes().length).toBe(1);
-    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/');
   }));
 
   it(
@@ -115,7 +104,6 @@ describe('HeroesService', () => {
         universe: 'U',
       });
       expect(currentHeroes[0]).toEqual(updatedHero);
-      expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/');
     }),
   );
 

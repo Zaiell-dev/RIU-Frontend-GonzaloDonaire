@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { LoadingService } from '../../services/loading-service';
 import { Hero } from '../../interfaces/hero';
 import { Observable, of } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 describe('ConfirmDelete', () => {
   let component: ConfirmDelete;
@@ -12,6 +13,7 @@ describe('ConfirmDelete', () => {
   let mockDialogRef: jasmine.SpyObj<MatDialogRef<ConfirmDelete>>;
   let mockOnConfirmAsync: jasmine.Spy<() => Observable<void>>;
   let mockLoadingService: jasmine.SpyObj<LoadingService>;
+  let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
   const hero: Hero = {
     id: 1,
     name: 'Test Hero',
@@ -27,6 +29,7 @@ describe('ConfirmDelete', () => {
     mockLoadingService = jasmine.createSpyObj('LoadingService', [
       'loadingDelete',
     ]);
+    mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
     await TestBed.configureTestingModule({
       imports: [ConfirmDelete],
       providers: [
@@ -36,6 +39,7 @@ describe('ConfirmDelete', () => {
           useValue: { hero, onConfirmAsync: mockOnConfirmAsync },
         },
         { provide: LoadingService, useValue: mockLoadingService },
+        { provide: MatSnackBar, useValue: mockSnackBar },
       ],
     }).compileComponents();
 
@@ -53,6 +57,11 @@ describe('ConfirmDelete', () => {
 
     expect(mockOnConfirmAsync).toHaveBeenCalled();
     expect(mockDialogRef.close).toHaveBeenCalledWith(true);
+    expect(mockSnackBar.open).toHaveBeenCalledWith(
+      'Héroe eliminado correctamente!',
+      'Cerrar',
+      { duration: 2000 },
+    );
   });
 
   it('should disable buttons when loadingDelete is true', () => {

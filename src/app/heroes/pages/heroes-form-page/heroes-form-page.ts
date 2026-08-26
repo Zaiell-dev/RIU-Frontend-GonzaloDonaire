@@ -15,6 +15,7 @@ import { SeeInUppercase } from '../../directives/see-in-uppercase';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { LoadingService } from '../../services/loading-service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-heroes-form-page',
@@ -30,6 +31,8 @@ import { LoadingService } from '../../services/loading-service';
   styleUrl: './heroes-form-page.css',
 })
 export class HeroesFormPage {
+  private readonly snackBar = inject(MatSnackBar);
+
   mode = signal<'create' | 'edit'>('create');
   form: FormGroup = new FormGroup({
     id: new FormControl<number>(0),
@@ -71,11 +74,24 @@ export class HeroesFormPage {
 
   onSaveHero() {
     if (this.form.invalid) return;
-    if (this.mode() === 'create') {
-      this.heroesService.createHero(this.form.value).subscribe();
-    } else {
-      this.heroesService.updateHero(this.form.value).subscribe();
-    }
+    const isCreating = this.mode() === 'create';
+
+    const operationToExecute$ = isCreating
+      ? this.heroesService.createHero(this.form.value)
+      : this.heroesService.updateHero(this.form.value);
+
+    const messageSnackbar = isCreating
+      ? 'Héroe creado correctamente!'
+      : 'Héroe actualizado correctamente!';
+
+    operationToExecute$.subscribe({
+      next: () => {
+        this.snackBar.open(messageSnackbar, 'Cerrar', {
+          duration: 2000,
+        });
+        void this.router.navigateByUrl('/');
+      },
+    });
   }
 
   onCancel(): void {

@@ -9,6 +9,7 @@ import { Hero } from '../../interfaces/hero';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingService } from '../../services/loading-service';
 import { Observable } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-confirm-delete',
@@ -43,6 +44,7 @@ import { Observable } from 'rxjs';
 })
 export class ConfirmDelete {
   readonly dialogRef = inject(MatDialogRef<ConfirmDelete>);
+  private readonly snackBar = inject(MatSnackBar);
   data = inject<{ hero: Hero; onConfirmAsync: () => Observable<void> }>(
     MAT_DIALOG_DATA,
   );
@@ -50,8 +52,13 @@ export class ConfirmDelete {
   loadingService = inject(LoadingService);
 
   onConfirmDelete(): void {
-    this.data.onConfirmAsync().subscribe(() => {
-      this.dialogRef.close(true);
+    this.data.onConfirmAsync().subscribe({
+      next: () => {
+        this.dialogRef.close(true);
+        this.snackBar.open('Héroe eliminado correctamente!', 'Cerrar', {
+          duration: 2000,
+        });
+      },
     });
   }
 }

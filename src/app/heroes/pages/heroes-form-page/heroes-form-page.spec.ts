@@ -2,13 +2,15 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeroesFormPage } from './heroes-form-page';
 import { HeroesService } from '../../services/heroes-service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { defer, of } from 'rxjs';
+import { of } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 describe('HeroesFormPage', () => {
   let component: HeroesFormPage;
   let fixture: ComponentFixture<HeroesFormPage>;
   let mockHeroesService: any;
   let mockRouter: jasmine.SpyObj<Router>;
+  let mockSnackBar: jasmine.SpyObj<MatSnackBar>;
   let mockActivatedRoute: any;
 
   beforeEach(async () => {
@@ -22,6 +24,7 @@ describe('HeroesFormPage', () => {
         .and.returnValue(of(void 0)),
     } as any;
     mockRouter = jasmine.createSpyObj('Router', ['navigateByUrl']);
+    mockSnackBar = jasmine.createSpyObj('MatSnackBar', ['open']);
     mockActivatedRoute = { queryParamMap: of(new Map()) };
 
     await TestBed.configureTestingModule({
@@ -29,6 +32,7 @@ describe('HeroesFormPage', () => {
       providers: [
         { provide: HeroesService, useValue: mockHeroesService },
         { provide: Router, useValue: mockRouter },
+        { provide: MatSnackBar, useValue: mockSnackBar },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
     }).compileComponents();
@@ -68,14 +72,7 @@ describe('HeroesFormPage', () => {
     expect(patchSpy).not.toHaveBeenCalled();
   });
 
-  it('should call and subscribe to createHero on save in create mode', () => {
-    const subscribed = jasmine.createSpy('createHero subscription');
-    mockHeroesService.createHero.and.returnValue(
-      defer(() => {
-        subscribed();
-        return of(void 0);
-      }),
-    );
+  it('should handle a successful hero creation', () => {
     component.mode.set('create');
     component.form.setValue({ id: 0, name: 'A', power: 'X', universe: 'U' });
     spyOnProperty(component.form, 'invalid', 'get').and.returnValue(false);
@@ -83,19 +80,17 @@ describe('HeroesFormPage', () => {
     component.onSaveHero();
 
     expect(mockHeroesService.createHero).toHaveBeenCalledWith(
-      component.form.value
+      component.form.value,
     );
-    expect(subscribed).toHaveBeenCalled();
+    expect(mockSnackBar.open).toHaveBeenCalledWith(
+      'Héroe creado correctamente!',
+      'Cerrar',
+      { duration: 2000 },
+    );
+    expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/');
   });
 
-  it('should call and subscribe to updateHero on save in edit mode', () => {
-    const subscribed = jasmine.createSpy('updateHero subscription');
-    mockHeroesService.updateHero.and.returnValue(
-      defer(() => {
-        subscribed();
-        return of(void 0);
-      }),
-    );
+  it('should handle a successful hero update', () => {
     component.mode.set('edit');
     component.form.setValue({ id: 1, name: 'A', power: 'X', universe: 'U' });
     spyOnProperty(component.form, 'invalid', 'get').and.returnValue(false);
@@ -103,9 +98,14 @@ describe('HeroesFormPage', () => {
     component.onSaveHero();
 
     expect(mockHeroesService.updateHero).toHaveBeenCalledWith(
-      component.form.value
+      component.form.value,
     );
-    expect(subscribed).toHaveBeenCalled();
+    expect(mockSnackBar.open).toHaveBeenCalledWith(
+      'Héroe actualizado correctamente!',
+      'Cerrar',
+      { duration: 2000 },
+    );
+    expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/');
   });
 
   it('should not call createHero or updateHero if form is invalid', () => {

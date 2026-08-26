@@ -2,9 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { Hero } from '../interfaces/hero';
 import { HEROES } from '../data/heroesdb';
 import { HeroesMapper } from '../mappers/HeroesMapper';
-import { Router } from '@angular/router';
 import { LoadingService } from './loading-service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { defer, delay, finalize, Observable, of, tap } from 'rxjs';
 
 @Injectable({
@@ -12,12 +10,10 @@ import { defer, delay, finalize, Observable, of, tap } from 'rxjs';
 })
 export class HeroesService {
   private readonly HEROES_KEY = 'heroes';
-  private _snackBar = inject(MatSnackBar);
   heroes = signal<Hero[]>([]);
   searchString = signal<string>('');
 
   loadingService = inject(LoadingService);
-  router = inject(Router);
 
   heroesFiltered = computed(() => {
     const searchString = this.searchString().toLowerCase();
@@ -78,10 +74,6 @@ export class HeroesService {
           const newHeroes = [...heroes, newHero];
           localStorage.setItem(this.HEROES_KEY, JSON.stringify(newHeroes));
           this.heroes.set(newHeroes);
-          this.router.navigateByUrl('/');
-          this._snackBar.open('Heroe creado correctamente!', 'Cerrar', {
-            duration: 2000,
-          });
         }),
         finalize(() => {
           this.loadingService.updateLoadingSave(false);
@@ -109,11 +101,6 @@ export class HeroesService {
             );
             this.heroes.set(updatedHeroes);
           }
-
-          this.router.navigateByUrl('/');
-          this._snackBar.open('Heroe actualizado correctamente!', 'Cerrar', {
-            duration: 2000,
-          });
         }),
         finalize(() => {
           this.loadingService.updateLoadingSave(false);
@@ -132,9 +119,6 @@ export class HeroesService {
           const updatedHeroes = heroes.filter((hero) => hero.id !== id);
           localStorage.setItem(this.HEROES_KEY, JSON.stringify(updatedHeroes));
           this.heroes.set(updatedHeroes);
-          this._snackBar.open('Heroe eliminado correctamente!', 'Cerrar', {
-            duration: 2000,
-          });
         }),
         finalize(() => {
           this.loadingService.updateLoadingDelete(false);
