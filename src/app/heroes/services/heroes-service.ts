@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Hero } from '../interfaces/hero';
 import { HEROES } from '../data/heroesdb';
-import { HeroesMapper } from '../mappers/HeroesMapper';
+import { mapHeroes } from '../mappers/heroes-mapper';
 import { LoadingService } from './loading-service';
 import { defer, delay, finalize, Observable, of, tap } from 'rxjs';
 
@@ -31,7 +31,7 @@ export class HeroesService {
   private getHeroesFromStorage(): Hero[] {
     const stored = localStorage.getItem(this.HEROES_KEY);
     if (stored) {
-      return HeroesMapper(JSON.parse(stored));
+      return mapHeroes(JSON.parse(stored));
     } else {
       localStorage.setItem(this.HEROES_KEY, JSON.stringify(HEROES));
       return HEROES;

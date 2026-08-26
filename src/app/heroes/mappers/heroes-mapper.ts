@@ -1,6 +1,6 @@
 import { Hero } from '../interfaces/hero';
 
-export const HeroesMapper = (heroesFromStorage: Partial<Hero>[]): Hero[] => {
+export const mapHeroes = (heroesFromStorage: Partial<Hero>[]): Hero[] => {
   if (!heroesFromStorage || !Array.isArray(heroesFromStorage)) {
     return [];
   }
