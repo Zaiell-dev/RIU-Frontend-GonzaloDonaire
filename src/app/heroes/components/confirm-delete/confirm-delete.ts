@@ -18,7 +18,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   template: `
     <h2 mat-dialog-title>Eliminar Héroe</h2>
     <mat-dialog-content>
-      ¿Estás seguro de que deseas eliminar este héroe?
+      ¿Estás seguro de que deseas eliminar a
+      <strong>{{ data.hero.name }}</strong>?
     </mat-dialog-content>
     <mat-dialog-actions>
       <button

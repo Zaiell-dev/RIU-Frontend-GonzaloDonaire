@@ -55,6 +55,14 @@ describe('ConfirmDelete', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should display the name of the hero to delete', () => {
+    const content: HTMLElement = fixture.nativeElement.querySelector(
+      'mat-dialog-content',
+    );
+
+    expect(content.textContent).toContain(hero.name);
+  });
+
   it('should call onConfirmAsync and close dialog on confirm', () => {
     component.onConfirmDelete();
 
