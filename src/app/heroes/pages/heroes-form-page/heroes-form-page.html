@@ -1,3 +1,16 @@
+@if (heroNotFound()) {
+<section class="hero-not-found" role="alert">
+  <mat-icon class="hero-not-found-icon" aria-hidden="true">
+    search_off
+  </mat-icon>
+  <h2>Héroe no encontrado</h2>
+  <p>El héroe que intentas editar no existe.</p>
+
+  <button matButton="filled" type="button" (click)="onCancel()">
+    Volver al listado
+  </button>
+</section>
+} @else {
 <h2>{{ mode() === 'create' ? 'Crear Héroe' : 'Editar Héroe' }}</h2>
 <form class="heroes-form" [formGroup]="form" (ngSubmit)="onSaveHero()">
   <mat-form-field appearance="outline" subscriptSizing="dynamic">
@@ -44,3 +57,4 @@
     </button>
   </section>
 </form>
+}

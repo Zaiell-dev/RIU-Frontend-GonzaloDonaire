@@ -66,13 +66,31 @@ describe('HeroesFormPage', () => {
     expect(patchSpy).toHaveBeenCalledWith(hero);
   });
 
-  it('should set mode to edit and not patch form if id param and hero not found', () => {
+  it('should show the not-found state and hide the form if the hero does not exist', () => {
     mockHeroesService.getHeroById.and.returnValue(undefined);
     spyOn(component, 'idHero').and.returnValue('1');
     const patchSpy = spyOn(component.form, 'patchValue');
+
     component.populateForm();
-    expect(component.mode()).toBe('edit');
+    fixture.detectChanges();
+
+    const notFoundState: HTMLElement | null =
+      fixture.nativeElement.querySelector('.hero-not-found');
+
+    expect(component.heroNotFound()).toBeTrue();
     expect(patchSpy).not.toHaveBeenCalled();
+    expect(notFoundState?.textContent).toContain('Héroe no encontrado');
+    expect(fixture.nativeElement.querySelector('form')).toBeNull();
+  });
+
+  it('should wait for the heroes list before checking an edit id', () => {
+    component.loadingService.updateLoadingList(true);
+    spyOn(component, 'idHero').and.returnValue('1');
+
+    component.populateForm();
+
+    expect(mockHeroesService.getHeroById).not.toHaveBeenCalled();
+    expect(component.heroNotFound()).toBeFalse();
   });
 
   it('should handle a successful hero creation', () => {

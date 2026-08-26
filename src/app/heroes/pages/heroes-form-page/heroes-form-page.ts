@@ -23,6 +23,7 @@ import { map } from 'rxjs';
 import { LoadingService } from '../../services/loading-service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { uniqueHeroNameValidator } from '../../validators/unique-hero-name-validator/unique-hero-name-validator';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-heroes-form-page',
@@ -33,6 +34,7 @@ import { uniqueHeroNameValidator } from '../../validators/unique-hero-name-valid
     MatButtonModule,
     MatProgressSpinner,
     SeeInUppercase,
+    MatIconModule,
   ],
   templateUrl: './heroes-form-page.html',
   styleUrl: './heroes-form-page.css',
@@ -40,6 +42,7 @@ import { uniqueHeroNameValidator } from '../../validators/unique-hero-name-valid
 })
 export class HeroesFormPage {
   private readonly snackBar = inject(MatSnackBar);
+  heroNotFound = signal(false);
 
   mode = signal<'create' | 'edit'>('create');
   heroesService = inject(HeroesService);
@@ -71,17 +74,24 @@ export class HeroesFormPage {
 
   populateForm(): void {
     const heroId = this.idHero();
+    if (this.loadingService.loadingList()) return;
     this.form.reset();
     this.form.markAsPristine();
-    if (heroId) {
-      this.mode.set('edit');
-      const hero = this.heroesService.getHeroById(Number(heroId));
-      if (hero) {
-        this.form.patchValue({ ...hero });
-      }
-    } else {
+    this.heroNotFound.set(false);
+
+    if (!heroId) {
       this.mode.set('create');
+      return;
     }
+
+    const hero = this.heroesService.getHeroById(Number(heroId));
+    if (!hero) {
+      this.heroNotFound.set(true);
+      return;
+    }
+
+    this.mode.set('edit');
+    this.form.patchValue(hero);
   }
 
   onSaveHero() {

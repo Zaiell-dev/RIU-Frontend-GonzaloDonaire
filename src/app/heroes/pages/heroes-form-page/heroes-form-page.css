@@ -27,3 +27,26 @@
   width: 100%;
   margin-top: 12px;
 }
+.hero-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.hero-not-found-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+  color: var(--mat-sys-primary);
+}
+
+.hero-not-found h2 {
+  margin: 16px 0 8px;
+  color: var(--mat-sys-on-surface);
+}
+
+.hero-not-found p {
+  margin: 0 0 20px;
+}
