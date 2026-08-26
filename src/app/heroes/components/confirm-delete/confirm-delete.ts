@@ -5,10 +5,10 @@ import {
   MatDialogModule,
   MatDialogRef,
 } from '@angular/material/dialog';
-import { HeroesService } from '../../services/heroes-service';
 import { Hero } from '../../interfaces/hero';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LoadingService } from '../../services/loading-service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-confirm-delete',
@@ -33,22 +33,24 @@ import { LoadingService } from '../../services/loading-service';
         cdkFocusInitial
       >
         @if (loadingService.loadingDelete()) {
-        <mat-spinner [diameter]="20" color="white"></mat-spinner>
-        }@else {Si, eliminar}
+          <mat-spinner [diameter]="20" color="white"></mat-spinner>
+        } @else {
+          Si, eliminar
+        }
       </button>
     </mat-dialog-actions>
   `,
 })
 export class ConfirmDelete {
   readonly dialogRef = inject(MatDialogRef<ConfirmDelete>);
-  data = inject<{ hero: Hero; onConfirmAsync: () => Promise<void> }>(
-    MAT_DIALOG_DATA
+  data = inject<{ hero: Hero; onConfirmAsync: () => Observable<void> }>(
+    MAT_DIALOG_DATA,
   );
 
   loadingService = inject(LoadingService);
 
-  onConfirmDelete() {
-    this.data.onConfirmAsync().then(() => {
+  onConfirmDelete(): void {
+    this.data.onConfirmAsync().subscribe(() => {
       this.dialogRef.close(true);
     });
   }

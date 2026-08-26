@@ -5,6 +5,7 @@ import { HeroesMapper } from '../mappers/HeroesMapper';
 import { Router } from '@angular/router';
 import { LoadingService } from './loading-service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { defer, delay, finalize, Observable, of, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +29,7 @@ export class HeroesService {
   });
 
   constructor() {
-    this.getHeroes();
+    this.getHeroes().subscribe();
   }
   private getHeroesFromStorage(): Hero[] {
     const stored = localStorage.getItem(this.HEROES_KEY);
@@ -40,14 +41,18 @@ export class HeroesService {
     }
   }
 
-  getHeroes(): Promise<void> {
-    this.loadingService.updateLoadingList(true);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.heroes.set(this.getHeroesFromStorage());
-        this.loadingService.updateLoadingList(false);
-        resolve();
-      }, 1000);
+  getHeroes(): Observable<void> {
+    return defer(() => {
+      this.loadingService.updateLoadingList(true);
+      return of(void 0).pipe(
+        delay(1000),
+        tap(() => {
+          this.heroes.set(this.getHeroesFromStorage());
+        }),
+        finalize(() => {
+          this.loadingService.updateLoadingList(false);
+        }),
+      );
     });
   }
 
@@ -58,68 +63,83 @@ export class HeroesService {
   onChangeSearchString(searchString: string): void {
     this.searchString.set(searchString);
   }
-  createHero(hero: Hero): Promise<void> {
-    this.loadingService.updateLoadingSave(true);
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const heroes = this.heroes();
-        const newHero = {
-          ...hero,
-          id: heroes.length > 0 ? Math.max(...heroes.map((h) => h.id)) + 1 : 1,
-        };
-        const newHeroes = [...heroes, newHero];
-        localStorage.setItem(this.HEROES_KEY, JSON.stringify(newHeroes));
-        this.heroes.set(newHeroes);
-        this.router.navigateByUrl('/');
-        this.loadingService.updateLoadingSave(false);
-        this._snackBar.open('Heroe creado correctamente!', 'Cerrar', {
-          duration: 2000,
-        });
-        resolve();
-      }, 1000);
+  createHero(hero: Hero): Observable<void> {
+    return defer(() => {
+      this.loadingService.updateLoadingSave(true);
+      return of(void 0).pipe(
+        delay(1000),
+        tap(() => {
+          const heroes = this.heroes();
+          const newHero = {
+            ...hero,
+            id:
+              heroes.length > 0 ? Math.max(...heroes.map((h) => h.id)) + 1 : 1,
+          };
+          const newHeroes = [...heroes, newHero];
+          localStorage.setItem(this.HEROES_KEY, JSON.stringify(newHeroes));
+          this.heroes.set(newHeroes);
+          this.router.navigateByUrl('/');
+          this._snackBar.open('Heroe creado correctamente!', 'Cerrar', {
+            duration: 2000,
+          });
+        }),
+        finalize(() => {
+          this.loadingService.updateLoadingSave(false);
+        }),
+      );
     });
   }
 
-  updateHero(hero: Hero): Promise<void> {
-    this.loadingService.updateLoadingSave(true);
+  updateHero(hero: Hero): Observable<void> {
+    return defer(() => {
+      this.loadingService.updateLoadingSave(true);
+      return of(void 0).pipe(
+        delay(1000),
+        tap(() => {
+          const heroes = this.heroes();
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const heroes = this.heroes();
+          const heroExists = heroes.some((heroItem) => heroItem.id === hero.id);
+          if (heroExists) {
+            const updatedHeroes = heroes.map((heroItem) =>
+              heroItem.id === hero.id ? hero : heroItem,
+            );
+            localStorage.setItem(
+              this.HEROES_KEY,
+              JSON.stringify(updatedHeroes),
+            );
+            this.heroes.set(updatedHeroes);
+          }
 
-        const heroExists = heroes.some((heroItem) => heroItem.id === hero.id);
-        if (heroExists) {
-          const updatedHeroes = heroes.map((heroItem) =>
-            heroItem.id === hero.id ? hero : heroItem,
-          );
+          this.router.navigateByUrl('/');
+          this._snackBar.open('Heroe actualizado correctamente!', 'Cerrar', {
+            duration: 2000,
+          });
+        }),
+        finalize(() => {
+          this.loadingService.updateLoadingSave(false);
+        }),
+      );
+    });
+  }
+
+  deleteHero(id: number): Observable<void> {
+    return defer(() => {
+      this.loadingService.updateLoadingDelete(true);
+      return of(void 0).pipe(
+        delay(1000),
+        tap(() => {
+          const heroes = this.heroes();
+          const updatedHeroes = heroes.filter((hero) => hero.id !== id);
           localStorage.setItem(this.HEROES_KEY, JSON.stringify(updatedHeroes));
           this.heroes.set(updatedHeroes);
-        }
-
-        this.router.navigateByUrl('/');
-        this.loadingService.updateLoadingSave(false);
-        this._snackBar.open('Heroe actualizado correctamente!', 'Cerrar', {
-          duration: 2000,
-        });
-        resolve();
-      }, 1000);
-    });
-  }
-
-  deleteHero(id: number): Promise<void> {
-    return new Promise((resolve) => {
-      this.loadingService.updateLoadingDelete(true);
-      setTimeout(() => {
-        const heroes = this.heroes();
-        const updatedHeroes = heroes.filter((hero) => hero.id !== id);
-        localStorage.setItem(this.HEROES_KEY, JSON.stringify(updatedHeroes));
-        this.heroes.set(updatedHeroes);
-        this.loadingService.updateLoadingDelete(false);
-        this._snackBar.open('Heroe eliminado correctamente!', 'Cerrar', {
-          duration: 2000,
-        });
-        resolve();
-      }, 1000);
+          this._snackBar.open('Heroe eliminado correctamente!', 'Cerrar', {
+            duration: 2000,
+          });
+        }),
+        finalize(() => {
+          this.loadingService.updateLoadingDelete(false);
+        }),
+      );
     });
   }
 }

@@ -10,7 +10,7 @@ import { NgControl } from '@angular/forms';
 export class SeeInUppercase {
   private readonly ngControl = inject(NgControl, { self: true });
 
-  onInput(event: InputEvent): void {
+  onInput(event: Event): void {
     const target = event.target;
     if (!(target instanceof HTMLInputElement)) return;
 

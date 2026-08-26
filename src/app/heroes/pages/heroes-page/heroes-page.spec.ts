@@ -3,7 +3,7 @@ import { HeroesPage } from './heroes-page';
 import { MatDialog } from '@angular/material/dialog';
 import { HeroesService } from '../../services/heroes-service';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Hero } from '../../interfaces/hero';
 import { ConfirmDelete } from '../../components/confirm-delete/confirm-delete';
 
@@ -24,10 +24,9 @@ describe('HeroesPage', () => {
   beforeEach(async () => {
     mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
     mockHeroesService = {
-      deleteHero: jasmine.createSpy('deleteHero'),
-      loading: () => false,
-      loadingDelete: () => false,
-      loadingCreateOrEdit: () => false,
+      deleteHero: jasmine
+        .createSpy('deleteHero')
+        .and.returnValue(of(void 0)),
       heroesFiltered: () => [],
       searchString: () => '',
       onChangeSearchString: jasmine.createSpy('onChangeSearchString'),
@@ -73,40 +72,25 @@ describe('HeroesPage', () => {
     expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/form');
   });
 
-  it('should open dialog and call deleteHero if confirmed', () => {
-    let onConfirmAsyncFn: Function | undefined;
-    const afterClosed$ = of(true);
-    mockDialog.open.and.callFake((component: any, config: any) => {
-      onConfirmAsyncFn = config.data.onConfirmAsync;
-      if (onConfirmAsyncFn) {
-        onConfirmAsyncFn();
-      }
-      return { afterClosed: () => afterClosed$ } as any;
+  it('should provide the delete action when opening the dialog', () => {
+    const deleteResult$ = of(void 0);
+    let onConfirmAsync: (() => Observable<void>) | undefined;
+    mockHeroesService.deleteHero.and.returnValue(deleteResult$);
+    mockDialog.open.and.callFake((_component: any, config: any) => {
+      onConfirmAsync = config.data.onConfirmAsync;
+      return {} as any;
     });
-    component.onDeleteButton(hero);
-    expect(mockDialog.open).toHaveBeenCalledWith(ConfirmDelete, {
-      data: { hero, onConfirmAsync: jasmine.any(Function) },
-    });
-    expect(mockHeroesService.deleteHero).toHaveBeenCalledWith(hero.id);
-  });
 
-  it('should open dialog and NOT call deleteHero if not confirmed', () => {
-    const afterClosed$ = of(false);
-    mockDialog.open.and.returnValue({ afterClosed: () => afterClosed$ } as any);
     component.onDeleteButton(hero);
+
     expect(mockDialog.open).toHaveBeenCalledWith(ConfirmDelete, {
       data: { hero, onConfirmAsync: jasmine.any(Function) },
     });
     expect(mockHeroesService.deleteHero).not.toHaveBeenCalled();
-  });
 
-  it('should open dialog and NOT call deleteHero if result is undefined', () => {
-    const afterClosed$ = of(undefined);
-    mockDialog.open.and.returnValue({ afterClosed: () => afterClosed$ } as any);
-    component.onDeleteButton(hero);
-    expect(mockDialog.open).toHaveBeenCalledWith(ConfirmDelete, {
-      data: { hero, onConfirmAsync: jasmine.any(Function) },
-    });
-    expect(mockHeroesService.deleteHero).not.toHaveBeenCalled();
+    const result$ = onConfirmAsync!();
+
+    expect(mockHeroesService.deleteHero).toHaveBeenCalledOnceWith(hero.id);
+    expect(result$).toBe(deleteResult$);
   });
 });

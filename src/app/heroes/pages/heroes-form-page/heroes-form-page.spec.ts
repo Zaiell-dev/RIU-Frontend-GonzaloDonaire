@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeroesFormPage } from './heroes-form-page';
 import { HeroesService } from '../../services/heroes-service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { defer, of } from 'rxjs';
 
 describe('HeroesFormPage', () => {
   let component: HeroesFormPage;
@@ -14,11 +14,12 @@ describe('HeroesFormPage', () => {
   beforeEach(async () => {
     mockHeroesService = {
       getHeroById: jasmine.createSpy('getHeroById'),
-      createHero: jasmine.createSpy('createHero'),
-      updateHero: jasmine.createSpy('updateHero'),
-      loading: () => false,
-      loadingDelete: () => false,
-      loadingCreateOrEdit: () => false,
+      createHero: jasmine
+        .createSpy('createHero')
+        .and.returnValue(of(void 0)),
+      updateHero: jasmine
+        .createSpy('updateHero')
+        .and.returnValue(of(void 0)),
     } as any;
     mockRouter = jasmine.createSpyObj('Router', ['navigateByUrl']);
     mockActivatedRoute = { queryParamMap: of(new Map()) };
@@ -67,24 +68,44 @@ describe('HeroesFormPage', () => {
     expect(patchSpy).not.toHaveBeenCalled();
   });
 
-  it('should call createHero on save in create mode', () => {
+  it('should call and subscribe to createHero on save in create mode', () => {
+    const subscribed = jasmine.createSpy('createHero subscription');
+    mockHeroesService.createHero.and.returnValue(
+      defer(() => {
+        subscribed();
+        return of(void 0);
+      }),
+    );
     component.mode.set('create');
     component.form.setValue({ id: 0, name: 'A', power: 'X', universe: 'U' });
     spyOnProperty(component.form, 'invalid', 'get').and.returnValue(false);
+
     component.onSaveHero();
+
     expect(mockHeroesService.createHero).toHaveBeenCalledWith(
       component.form.value
     );
+    expect(subscribed).toHaveBeenCalled();
   });
 
-  it('should call updateHero on save in edit mode', () => {
+  it('should call and subscribe to updateHero on save in edit mode', () => {
+    const subscribed = jasmine.createSpy('updateHero subscription');
+    mockHeroesService.updateHero.and.returnValue(
+      defer(() => {
+        subscribed();
+        return of(void 0);
+      }),
+    );
     component.mode.set('edit');
     component.form.setValue({ id: 1, name: 'A', power: 'X', universe: 'U' });
     spyOnProperty(component.form, 'invalid', 'get').and.returnValue(false);
+
     component.onSaveHero();
+
     expect(mockHeroesService.updateHero).toHaveBeenCalledWith(
       component.form.value
     );
+    expect(subscribed).toHaveBeenCalled();
   });
 
   it('should not call createHero or updateHero if form is invalid', () => {

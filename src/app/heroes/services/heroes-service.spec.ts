@@ -1,7 +1,9 @@
-import { TestBed } from '@angular/core/testing';
+import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { HeroesService } from './heroes-service';
 import { Router } from '@angular/router';
 import { HEROES } from '../data/heroesdb';
+import { EMPTY } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -23,12 +25,22 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 describe('HeroesService', () => {
   let service: HeroesService;
   let routerSpy: jasmine.SpyObj<Router>;
+  let snackBarSpy: jasmine.SpyObj<MatSnackBar>;
+  let getHeroesSpy: jasmine.Spy;
 
   beforeEach(() => {
     routerSpy = jasmine.createSpyObj('Router', ['navigateByUrl']);
-    spyOn(HeroesService.prototype, 'getHeroes');
+    snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
+    getHeroesSpy = spyOn(
+      HeroesService.prototype,
+      'getHeroes',
+    ).and.returnValue(EMPTY);
     TestBed.configureTestingModule({
-      providers: [HeroesService, { provide: Router, useValue: routerSpy }],
+      providers: [
+        HeroesService,
+        { provide: Router, useValue: routerSpy },
+        { provide: MatSnackBar, useValue: snackBarSpy },
+      ],
     });
     service = TestBed.inject(HeroesService);
     localStorage.clear();
@@ -39,14 +51,14 @@ describe('HeroesService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should initialize with HEROES if localStorage is empty', (done) => {
-    (service.getHeroes as any).and.callThrough();
-    service.getHeroes();
-    setTimeout(() => {
-      expect(service.heroes().length).toBe(HEROES.length);
-      done();
-    }, 1100);
-  });
+  it('should initialize with HEROES if localStorage is empty', fakeAsync(() => {
+    getHeroesSpy.and.callThrough();
+
+    service.getHeroes().subscribe();
+    tick(1000);
+
+    expect(service.heroes().length).toBe(HEROES.length);
+  }));
 
   it('should filter heroes by search string', () => {
     service.heroes.set(HEROES);
@@ -63,31 +75,36 @@ describe('HeroesService', () => {
     expect(hero).toEqual(jasmine.objectContaining({ id: 1 }));
   });
 
-  it('should create a new hero', (done) => {
+  it('should create a new hero', fakeAsync(() => {
     service.heroes.set([]);
-    service.createHero({
-      id: 0,
-      name: 'Test',
-      power: 'Test',
-      universe: 'Test',
-    });
-    setTimeout(() => {
-      expect(service.heroes().length).toBe(1);
-      expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/');
-      done();
-    }, 1100);
-  });
+    service
+      .createHero({
+        id: 0,
+        name: 'Test',
+        power: 'Test',
+        universe: 'Test',
+      })
+      .subscribe();
 
-  it('should update an existing hero without mutating the original state', (done) => {
-    const originalHeroes = [
-      { id: 1, name: 'A', power: 'X', universe: 'U' },
-    ];
-    const updatedHero = { id: 1, name: 'B', power: 'Y', universe: 'V' };
+    tick(1000);
 
-    service.heroes.set(originalHeroes);
-    service.updateHero(updatedHero);
+    expect(service.heroes().length).toBe(1);
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/');
+  }));
 
-    setTimeout(() => {
+  it(
+    'should update an existing hero without mutating the original state',
+    fakeAsync(() => {
+      const originalHeroes = [
+        { id: 1, name: 'A', power: 'X', universe: 'U' },
+      ];
+      const updatedHero = { id: 1, name: 'B', power: 'Y', universe: 'V' };
+
+      service.heroes.set(originalHeroes);
+      service.updateHero(updatedHero).subscribe();
+
+      tick(1000);
+
       const currentHeroes = service.heroes();
 
       expect(currentHeroes).not.toBe(originalHeroes);
@@ -99,13 +116,15 @@ describe('HeroesService', () => {
       });
       expect(currentHeroes[0]).toEqual(updatedHero);
       expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/');
-      done();
-    }, 1100);
-  });
+    }),
+  );
 
-  it('should delete a hero', async () => {
+  it('should delete a hero', fakeAsync(() => {
     service.heroes.set([{ id: 1, name: 'A', power: 'X', universe: 'U' }]);
-    await service.deleteHero(1);
+
+    service.deleteHero(1).subscribe();
+    tick(1000);
+
     expect(service.heroes().length).toBe(0);
-  });
+  }));
 });

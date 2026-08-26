@@ -45,7 +45,7 @@ export class HeroesFormPage {
   router = inject(Router);
   idHero = toSignal(
     this.activatedRoute.queryParamMap.pipe(map((params) => params.get('id'))),
-    { initialValue: null }
+    { initialValue: null },
   );
 
   constructor() {
@@ -72,9 +72,9 @@ export class HeroesFormPage {
   onSaveHero() {
     if (this.form.invalid) return;
     if (this.mode() === 'create') {
-      this.heroesService.createHero(this.form.value);
+      this.heroesService.createHero(this.form.value).subscribe();
     } else {
-      this.heroesService.updateHero(this.form.value);
+      this.heroesService.updateHero(this.form.value).subscribe();
     }
   }
 
