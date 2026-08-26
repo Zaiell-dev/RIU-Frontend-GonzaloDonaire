@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   computed,
   effect,
@@ -32,6 +33,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   ],
   templateUrl: './heroes-page.html',
   styleUrl: './heroes-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeroesPage {
   readonly dialog = inject(MatDialog);

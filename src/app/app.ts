@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { Header } from './shared/components/header/header';
@@ -21,6 +26,7 @@ import { LoadingService } from './heroes/services/loading-service';
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
   protected readonly title = signal('RIU-Frontend-GonzaloDonaire');

@@ -1,4 +1,10 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  effect,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -29,6 +35,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   ],
   templateUrl: './heroes-form-page.html',
   styleUrl: './heroes-form-page.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeroesFormPage {
   private readonly snackBar = inject(MatSnackBar);
