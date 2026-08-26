@@ -5,7 +5,7 @@ import {
   effect,
   inject,
   signal,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { HeroesService } from '../../services/heroes-service';
@@ -41,7 +41,7 @@ export class HeroesPage {
   heroesService = inject(HeroesService);
   router = inject(Router);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  readonly paginator = viewChild(MatPaginator);
   dataSource = new MatTableDataSource<Hero>([]);
   windowWidth = signal(window.innerWidth);
   displayedColumns = computed(() => {
@@ -63,11 +63,9 @@ export class HeroesPage {
 
     effect(() => {
       this.dataSource.data = this.heroesService.heroesFiltered();
+      this.dataSource.paginator = this.paginator() ?? null;
     });
     window.addEventListener('resize', this.resizeHandler);
-  }
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
   }
 
   ngOnDestroy(): void {
