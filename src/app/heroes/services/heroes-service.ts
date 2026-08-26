@@ -10,16 +10,17 @@ import { defer, delay, finalize, Observable, of, tap } from 'rxjs';
 })
 export class HeroesService {
   private readonly HEROES_KEY = 'heroes';
-  heroes = signal<Hero[]>([]);
+  private readonly _heroes = signal<Hero[]>([]);
+  readonly heroes = this._heroes.asReadonly();
   searchString = signal<string>('');
 
   loadingService = inject(LoadingService);
 
   heroesFiltered = computed(() => {
     const searchString = this.searchString().toLowerCase();
-    if (!searchString) return this.heroes();
+    if (!searchString) return this._heroes();
 
-    return this.heroes().filter((hero) =>
+    return this._heroes().filter((hero) =>
       hero.name.toLowerCase().includes(searchString),
     );
   });
@@ -43,7 +44,7 @@ export class HeroesService {
       return of(void 0).pipe(
         delay(1000),
         tap(() => {
-          this.heroes.set(this.getHeroesFromStorage());
+          this._heroes.set(this.getHeroesFromStorage());
         }),
         finalize(() => {
           this.loadingService.updateLoadingList(false);
@@ -53,7 +54,7 @@ export class HeroesService {
   }
 
   getHeroById(id: number): Hero | undefined {
-    return this.heroes().find((hero) => hero.id === id);
+    return this._heroes().find((hero) => hero.id === id);
   }
 
   onChangeSearchString(searchString: string): void {
@@ -65,7 +66,7 @@ export class HeroesService {
       return of(void 0).pipe(
         delay(1000),
         tap(() => {
-          const heroes = this.heroes();
+          const heroes = this._heroes();
           const newHero = {
             ...hero,
             id:
@@ -73,7 +74,7 @@ export class HeroesService {
           };
           const newHeroes = [...heroes, newHero];
           localStorage.setItem(this.HEROES_KEY, JSON.stringify(newHeroes));
-          this.heroes.set(newHeroes);
+          this._heroes.set(newHeroes);
         }),
         finalize(() => {
           this.loadingService.updateLoadingSave(false);
@@ -88,7 +89,7 @@ export class HeroesService {
       return of(void 0).pipe(
         delay(1000),
         tap(() => {
-          const heroes = this.heroes();
+          const heroes = this._heroes();
 
           const heroExists = heroes.some((heroItem) => heroItem.id === hero.id);
           if (heroExists) {
@@ -99,7 +100,7 @@ export class HeroesService {
               this.HEROES_KEY,
               JSON.stringify(updatedHeroes),
             );
-            this.heroes.set(updatedHeroes);
+            this._heroes.set(updatedHeroes);
           }
         }),
         finalize(() => {
@@ -115,10 +116,10 @@ export class HeroesService {
       return of(void 0).pipe(
         delay(1000),
         tap(() => {
-          const heroes = this.heroes();
+          const heroes = this._heroes();
           const updatedHeroes = heroes.filter((hero) => hero.id !== id);
           localStorage.setItem(this.HEROES_KEY, JSON.stringify(updatedHeroes));
-          this.heroes.set(updatedHeroes);
+          this._heroes.set(updatedHeroes);
         }),
         finalize(() => {
           this.loadingService.updateLoadingDelete(false);

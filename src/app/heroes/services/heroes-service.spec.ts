@@ -1,7 +1,9 @@
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { isWritableSignal } from '@angular/core';
 import { HeroesService } from './heroes-service';
 import { HEROES } from '../data/heroesdb';
 import { EMPTY } from 'rxjs';
+import { Hero } from '../interfaces/hero';
 
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -32,13 +34,23 @@ describe('HeroesService', () => {
     TestBed.configureTestingModule({
       providers: [HeroesService],
     });
-    service = TestBed.inject(HeroesService);
     localStorage.clear();
-    service.heroes.set([]);
+    service = TestBed.inject(HeroesService);
   });
+
+  function loadHeroesFromStorage(heroes: Hero[]): void {
+    localStorage.setItem('heroes', JSON.stringify(heroes));
+    getHeroesSpy.and.callThrough();
+    service.getHeroes().subscribe();
+    tick(1000);
+  }
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  it('should expose heroes as a readonly signal', () => {
+    expect(isWritableSignal(service.heroes)).toBeFalse();
   });
 
   it('should initialize with HEROES if localStorage is empty', fakeAsync(() => {
@@ -50,23 +62,23 @@ describe('HeroesService', () => {
     expect(service.heroes().length).toBe(HEROES.length);
   }));
 
-  it('should filter heroes by search string', () => {
-    service.heroes.set(HEROES);
+  it('should filter heroes by search string', fakeAsync(() => {
+    loadHeroesFromStorage(HEROES);
     service.onChangeSearchString('man');
     const filtered = service.heroesFiltered();
     expect(
-      filtered.every((h) => h.name.toLowerCase().includes('man'))
+      filtered.every((h) => h.name.toLowerCase().includes('man')),
     ).toBeTrue();
-  });
+  }));
 
-  it('should get hero by id', () => {
-    service.heroes.set(HEROES);
+  it('should get hero by id', fakeAsync(() => {
+    loadHeroesFromStorage(HEROES);
     const hero = service.getHeroById(1);
     expect(hero).toEqual(jasmine.objectContaining({ id: 1 }));
-  });
+  }));
 
   it('should create a new hero', fakeAsync(() => {
-    service.heroes.set([]);
+    loadHeroesFromStorage([]);
     service
       .createHero({
         id: 0,
@@ -89,15 +101,16 @@ describe('HeroesService', () => {
       ];
       const updatedHero = { id: 1, name: 'B', power: 'Y', universe: 'V' };
 
-      service.heroes.set(originalHeroes);
+      loadHeroesFromStorage(originalHeroes);
+      const originalState = service.heroes();
       service.updateHero(updatedHero).subscribe();
 
       tick(1000);
 
       const currentHeroes = service.heroes();
 
-      expect(currentHeroes).not.toBe(originalHeroes);
-      expect(originalHeroes[0]).toEqual({
+      expect(currentHeroes).not.toBe(originalState);
+      expect(originalState[0]).toEqual({
         id: 1,
         name: 'A',
         power: 'X',
@@ -108,7 +121,9 @@ describe('HeroesService', () => {
   );
 
   it('should delete a hero', fakeAsync(() => {
-    service.heroes.set([{ id: 1, name: 'A', power: 'X', universe: 'U' }]);
+    loadHeroesFromStorage([
+      { id: 1, name: 'A', power: 'X', universe: 'U' },
+    ]);
 
     service.deleteHero(1).subscribe();
     tick(1000);
