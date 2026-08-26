@@ -16,7 +16,8 @@ import { ConfirmDelete } from '../../components/confirm-delete/confirm-delete';
 describe('HeroesPage', () => {
   type HeroesServiceMock = jasmine.SpyObj<
     Pick<HeroesService, 'deleteHero' | 'onChangeSearchString'>
-  > & Pick<HeroesService, 'heroesFiltered' | 'searchString'>;
+  > &
+    Pick<HeroesService, 'heroesFiltered' | 'searchString'>;
 
   let component: HeroesPage;
   let fixture: ComponentFixture<HeroesPage>;
@@ -34,9 +35,7 @@ describe('HeroesPage', () => {
   beforeEach(async () => {
     mockDialog = jasmine.createSpyObj('MatDialog', ['open']);
     mockHeroesService = {
-      deleteHero: jasmine
-        .createSpy('deleteHero')
-        .and.returnValue(of(void 0)),
+      deleteHero: jasmine.createSpy('deleteHero').and.returnValue(of(void 0)),
       heroesFiltered: signal<Hero[]>([]).asReadonly(),
       searchString: signal(''),
       onChangeSearchString: jasmine.createSpy('onChangeSearchString'),
@@ -81,9 +80,9 @@ describe('HeroesPage', () => {
 
     tick(1);
 
-    expect(
-      mockHeroesService.onChangeSearchString,
-    ).toHaveBeenCalledOnceWith('Batman');
+    expect(mockHeroesService.onChangeSearchString).toHaveBeenCalledOnceWith(
+      'Batman',
+    );
 
     searchInput.dispatchEvent(new Event('input', { bubbles: true }));
     tick(300);
@@ -107,21 +106,19 @@ describe('HeroesPage', () => {
 
     tick(1);
 
-    expect(mockHeroesService.onChangeSearchString).toHaveBeenCalledOnceWith(
-      '',
-    );
+    expect(mockHeroesService.onChangeSearchString).toHaveBeenCalledOnceWith('');
   }));
 
   it('should show an empty state when there are no heroes', () => {
     expect(fixture.nativeElement.textContent).toContain(
-      'Todavía no hay superhéroes registrados'
+      'Todavía no hay superhéroes registrados',
     );
   });
 
   it('should navigate to form on edit', () => {
     component.onEditButton(hero);
     expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(
-      `/form?id=${hero.id}`
+      `/form?id=${hero.id}`,
     );
   });
 

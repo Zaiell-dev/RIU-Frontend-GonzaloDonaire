@@ -5,14 +5,14 @@ export const routes: Routes = [
     path: '',
     loadComponent: () =>
       import('./heroes/pages/heroes-page/heroes-page').then(
-        (c) => c.HeroesPage
+        (c) => c.HeroesPage,
       ),
   },
   {
     path: 'form',
     loadComponent: () =>
       import('./heroes/pages/heroes-form-page/heroes-form-page').then(
-        (c) => c.HeroesFormPage
+        (c) => c.HeroesFormPage,
       ),
   },
   {

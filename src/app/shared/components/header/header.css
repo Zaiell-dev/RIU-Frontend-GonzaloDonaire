@@ -48,7 +48,9 @@
   color: var(--mat-sys-on-surface);
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
-  transition: color 200ms ease, background-color 200ms ease;
+  transition:
+    color 200ms ease,
+    background-color 200ms ease;
 }
 
 .nav-link:hover {

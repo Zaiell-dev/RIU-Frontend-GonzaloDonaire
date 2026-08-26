@@ -27,10 +27,10 @@ describe('Header', () => {
     const links = compiled.querySelectorAll('a[routerLink]');
     expect(links.length).toBeGreaterThan(0);
     expect(Array.from(links).map((l) => l.textContent?.trim())).toContain(
-      'Héroes'
+      'Héroes',
     );
     expect(Array.from(links).map((l) => l.textContent?.trim())).toContain(
-      'Crear un héroe'
+      'Crear un héroe',
     );
   });
 });

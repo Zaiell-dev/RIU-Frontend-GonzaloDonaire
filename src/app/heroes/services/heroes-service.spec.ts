@@ -27,10 +27,9 @@ describe('HeroesService', () => {
   let getHeroesSpy: jasmine.Spy;
 
   beforeEach(() => {
-    getHeroesSpy = spyOn(
-      HeroesService.prototype,
-      'getHeroes',
-    ).and.returnValue(EMPTY);
+    getHeroesSpy = spyOn(HeroesService.prototype, 'getHeroes').and.returnValue(
+      EMPTY,
+    );
     TestBed.configureTestingModule({
       providers: [HeroesService],
     });
@@ -93,37 +92,30 @@ describe('HeroesService', () => {
     expect(service.heroes().length).toBe(1);
   }));
 
-  it(
-    'should update an existing hero without mutating the original state',
-    fakeAsync(() => {
-      const originalHeroes = [
-        { id: 1, name: 'A', power: 'X', universe: 'U' },
-      ];
-      const updatedHero = { id: 1, name: 'B', power: 'Y', universe: 'V' };
+  it('should update an existing hero without mutating the original state', fakeAsync(() => {
+    const originalHeroes = [{ id: 1, name: 'A', power: 'X', universe: 'U' }];
+    const updatedHero = { id: 1, name: 'B', power: 'Y', universe: 'V' };
 
-      loadHeroesFromStorage(originalHeroes);
-      const originalState = service.heroes();
-      service.updateHero(updatedHero).subscribe();
+    loadHeroesFromStorage(originalHeroes);
+    const originalState = service.heroes();
+    service.updateHero(updatedHero).subscribe();
 
-      tick(1000);
+    tick(1000);
 
-      const currentHeroes = service.heroes();
+    const currentHeroes = service.heroes();
 
-      expect(currentHeroes).not.toBe(originalState);
-      expect(originalState[0]).toEqual({
-        id: 1,
-        name: 'A',
-        power: 'X',
-        universe: 'U',
-      });
-      expect(currentHeroes[0]).toEqual(updatedHero);
-    }),
-  );
+    expect(currentHeroes).not.toBe(originalState);
+    expect(originalState[0]).toEqual({
+      id: 1,
+      name: 'A',
+      power: 'X',
+      universe: 'U',
+    });
+    expect(currentHeroes[0]).toEqual(updatedHero);
+  }));
 
   it('should delete a hero', fakeAsync(() => {
-    loadHeroesFromStorage([
-      { id: 1, name: 'A', power: 'X', universe: 'U' },
-    ]);
+    loadHeroesFromStorage([{ id: 1, name: 'A', power: 'X', universe: 'U' }]);
 
     service.deleteHero(1).subscribe();
     tick(1000);

@@ -1,11 +1,11 @@
 <app-header></app-header>
 
 @if (loadingService.loadingList()) {
-<section class="loading-section">
-  <mat-spinner [diameter]="60"></mat-spinner>
-</section>
+  <section class="loading-section">
+    <mat-spinner [diameter]="60"></mat-spinner>
+  </section>
 } @else {
-<section class="main-layout">
-  <router-outlet />
-</section>
+  <section class="main-layout">
+    <router-outlet />
+  </section>
 }

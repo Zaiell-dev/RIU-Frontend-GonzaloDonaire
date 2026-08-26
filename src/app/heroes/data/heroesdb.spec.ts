@@ -11,7 +11,7 @@ describe('HEROES data', () => {
           name: jasmine.any(String),
           power: jasmine.any(String),
           universe: jasmine.any(String),
-        })
+        }),
       );
     }
   });

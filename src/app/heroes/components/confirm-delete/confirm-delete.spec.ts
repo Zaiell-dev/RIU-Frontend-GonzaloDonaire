@@ -56,9 +56,8 @@ describe('ConfirmDelete', () => {
   });
 
   it('should display the name of the hero to delete', () => {
-    const content: HTMLElement = fixture.nativeElement.querySelector(
-      'mat-dialog-content',
-    );
+    const content: HTMLElement =
+      fixture.nativeElement.querySelector('mat-dialog-content');
 
     expect(content.textContent).toContain(hero.name);
   });
